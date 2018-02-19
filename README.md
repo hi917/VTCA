@@ -5,8 +5,6 @@ Whenever there is an opening for the course(s) you are listening to, a new brows
 alert you of an available spot.
 
 Remaining plans:
-1. Utilize <a href="https://github.com/chishui/JSSoup">JSSoup</a> to create an API like 
-<a href="https://github.com/VirginiaTech/pyvt">pyvt</a>, but for javascript.
-2. Implement course lookup using newly created API
-3. Implement interval course availability checking system
+1. Determine javascript web scraping technology.
+2. Implement interval course availability checking system
 </p>
