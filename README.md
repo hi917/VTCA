@@ -9,7 +9,8 @@ A web application which allows you to create a .txt file containing Virginia Tec
   <li>
     Set up Python environment variables (in Windows)
     <ol>
-      <li>Control Panel > System > Advanced System Settings > Environment Variables</li>
+      <li>Control Panel > System > Advanced System Settings > Environment Variables
+      </li>
       <li>Under System variables, click New...</li>
       <li>For variable name, enter PYTHONPATH</li>
       <li>For variable value, enter the path at which you installed Python (ie. C:\Python36)</li>
