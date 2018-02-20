@@ -4,15 +4,28 @@ A web application which allows you to create a .txt file containing Virginia Tec
 </p>
 
 <h2>Installation</h2>
-<p>
-</p>
-
+<ol>
+  <li>Download and install <a href="https://www.python.org/downloads/">Python</a></li>
+  <li>
+    Set up Python environment variables (in Windows)
+    <ol>
+      <li>Control Panel > System > Advanced System Settings > Environment Variables</li>
+      <li>Under System variables, click New...</li>
+      <li>For variable name, enter PYTHONPATH</li>
+      <li>For variable value, enter the path at which you installed Python (ie. C:\Python36)</li>
+    </ol>
+  </li>
+  <li>Enter 'pip install py-vt' in command prompt</li>
+</ol>
+ 
 <h2>Usage</h2>
 <p>
+  Open index.html in your browser. Add the courses you want to wait for opening in. Once finished adding all desired courses, click on 'Save File' button (this should download a file named listening_list.txt) Move listening_list to the folder (named VTCA-master by default) containing the provided files. Run command prompt. Change path to VTCA-master. Assuming, command prompt displays: C:\Users\USER>, enter the command 'cd Desktop\VTCA-master' if you moved VTCA-master to your desktop. Finally, run the provided python file with 'python listen.py -d', where -d is replaced with a number for the delay for course availability checking (in seconds). To exit, press Ctrl+C or Ctrl+Z or exit command prompt.
 </p>
 
 <h2>Problems</h2>
 <p>
+  After the first delay interval, the first time the output file is opened, it is blank. (Occurs for low delay, unsure for long delays)
 </p>
 
 <h2>Alternatives</h2>
