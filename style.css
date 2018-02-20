@@ -1,0 +1,125 @@
+/*
+Primary Colors
+-----------------------
+Chicago Maroon: #6A2C3E
+Burnt Orange: #CF4520
+
+Secondary Colors
+-----------------------
+Light Gray: #cacac8
+Medium Gray: #747679
+Dark Gray: #343735
+Black: #000
+*/
+
+/*Style body*/
+body {
+	background-color: #6A2C3E;
+	font-family: 'Abel';
+	font-size: 20px;
+}
+
+/*Style input and select elements*/
+input, select {
+	padding: 10px 20px;
+	border: none;
+	color: #CF4520;
+	font-family: 'Abel';
+	font-size: 14px;
+}
+
+button {
+	padding: 5px 10px;
+}
+
+/*Resize span elements*/
+span {
+	display: block;
+	font-size: 12px;
+}
+
+/*Style container*/
+.container {
+	width: 65%;
+	min-height: 100%;
+	margin: 0 auto;
+	background-color: white;
+}
+
+/*Center form content*/
+.course_form {
+	text-align: center;
+}
+
+/*Add spacing between form sections*/
+.form_section {
+	margin: 0.5em 0;
+}
+
+/*Style label*/
+.form_section label {
+	display: block;
+	width: 100%;
+}
+
+/*Style form inputs and select elements*/
+.form_section input, .form_section select {
+	width: 60%;
+	border: solid 1px #CF4520;
+}
+
+/*Add spacing to top of form*/
+.term_div {
+	padding-top: 1em;
+}
+
+/*Style form add and reset buttons*/
+input[type="submit"], input[type="reset"], button {
+	background-color: #CF4520;
+	color: white;
+	border: none;
+}
+
+/*Style hover for form add and reset buttons*/
+input[type="submit"]:hover, input[type="reset"]:hover, button:hover {
+	box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.5);
+	cursor: pointer;
+}
+
+h3 {
+	margin-bottom: 0;
+	text-align: center;
+}
+
+table {
+	margin: 0 auto;
+	width: 90%;
+	border-collapse: collapse;
+}
+
+table tbody {
+	border: solid 1px #6A2C3E;
+
+}
+
+table th {
+	margin: 0;
+	padding: 5px 0;
+	background-color: #6A2C3E;
+	color: white;
+}
+
+table td {
+	text-align: center;
+}
+
+.save_file_div {
+	text-align: center;
+	margin-top: 1em;
+}
+
+@media screen and (max-width: 500px) {
+	.container {
+		width: 95%;
+	}
+}
