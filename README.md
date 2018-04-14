@@ -25,7 +25,7 @@ A web application which allows you to create a .txt file containing Virginia Tec
 
 <h2>Problems</h2>
 <p>
-  After the first delay interval, the first time the output file is opened, it is blank. (Occurs for low delay, unsure for long delays)
+  Currently there are no unknown problems.
 </p>
 
 <h2>Alternatives</h2>
