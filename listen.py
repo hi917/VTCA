@@ -42,7 +42,7 @@ def processDelayAndIO(param_offset):
 
 # Usage information
 if  len(sys.argv) >= 2:
-	if (sys.argv[1] == '-help' or sys.argv[1] == '-h' or sys.argv[1] == '--help' or sys.argv[1] == '--h'):
+	if (sys.argv[1] == '--help' or sys.argv[1] == '-h'):
 		print('usage: listen.py [-bBdvV] [delay] [infile] [outfile]\n\t'
 			+ '-b: Set beep duration to 5s (default 1s)\n\t'
 			+ '-B: Set beep duration to 10s (default 1s)\n\t'
