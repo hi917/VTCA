@@ -18,6 +18,7 @@ frequency = 1500
 # Program flags
 VERBOSE = False
 MORE_VERBOSE = False
+DEBUG = False
 
 # Print to stdout and flush stdout
 def printf(string):
@@ -42,9 +43,10 @@ def processDelayAndIO(param_offset):
 # Usage information
 if  len(sys.argv) >= 2:
 	if (sys.argv[1] == '-help' or sys.argv[1] == '-h' or sys.argv[1] == '--help' or sys.argv[1] == '--h'):
-		print('Usage: listen.py [-dDvV] [delay] [infile] [outfile]\n\t'
-			+ '-d: Set beep duration to 5s (default 1s)\n\t'
-			+ '-D: Set beep duration to 10s (default 1s)\n\t'
+		print('usage: listen.py [-bBdvV] [delay] [infile] [outfile]\n\t'
+			+ '-b: Set beep duration to 5s (default 1s)\n\t'
+			+ '-B: Set beep duration to 10s (default 1s)\n\t'
+			+ '-d: Run program in debug mode\n\t'
 			+ '-v: Run program in verbose mode\n\t'
 			+ '-V: Run program in more verbose mode\n\t'
 			+ 'delay: Specify delay for checking course availabilities (in seconds)\n\t'
@@ -56,24 +58,38 @@ if  len(sys.argv) >= 2:
 if sys.argv[1][0] == '-':
 	flags = list(sys.argv[1][1:])
 	for flag in flags:
-		if flag == 'd': # Make beep duration long
+		if flag == 'b': # Make beep duration long (5s)
 			duration = 5000
-		if flag == 'D': # Make beep duration even longer
+		if flag == 'B': # Make beep duration even longer (10s)
 			duration = 10000
 		if flag == 'v': # Print details about alerter
 			VERBOSE = True
 		if flag == 'V': # Print even more details about alerter
 			MORE_VERBOSE = True
+		if flag == 'd' or flag == 'D': # Debug mode, intended for developer use
+			VERBOSE = True
+			MORE_VERBOSE = True
+			DEBUG = True
 	processDelayAndIO(2)
 else:
 	processDelayAndIO(1)
 
 # Signal user process settings
-if MORE_VERBOSE:
+if DEBUG:
+	printf('==================================================')
+	printf('Program Variables:')
+	printf('\tdelay: ' + str(delay))
+	printf('\tinput_file_name: ' + str(input_file_name))
+	printf('\toutput_file_name: ' + str(output_file_name))
+	printf('\tduration: ' + str(duration))
+	printf('\tfrequency: ' + str(frequency))
+	printf('==================================================')
+elif MORE_VERBOSE:
 	printf('Running program in (more) verbose mode')
 elif VERBOSE:
 	printf('Running program in verbose mode')
-printf('Beep alert duration ' + str(duration/1000)+ 's')
+if not DEBUG:
+	printf('Beep alert duration ' + str(duration/1000)+ 's')
 
 #Section class
 class Section:
@@ -105,12 +121,20 @@ with open(input_file_name) as inputFile:
 		if len(parts) != 6 or len(parts[0]) != 5:
 			continue
 		parts[5] = parts[5].strip('\n')
-		section = Section(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
+		if DEBUG:
+			printf('Course detected: ' + parts[0] + ' ' + parts[1] + ' ' + parts[2] + ' ' + parts[3] + ' ' + parts[4] + ' ' + parts[5])
+		section = Section(str(parts[0]), parts[1], parts[2], parts[3], parts[4], parts[5]);
 		if len(getattr(section, 'crn_code')) < 5:
 			setattr(section, 'crn_code', '')
 		sections.append(section)
 		if VERBOSE or MORE_VERBOSE:
 			printf('[' + str(datetime.datetime.now()) + '] Listening for ' + str(section))
+
+if DEBUG:
+	printf('\nSections Listening To:')
+	for section in sections:
+		printf(section)
+	printf('')
 
 timetable = Timetable()
 # Allow loop if listening to classes
@@ -154,6 +178,6 @@ if (len(sections) > 0):
 			if VERBOSE or MORE_VERBOSE:
 				printf('[' + str(datetime.datetime.now()) + '] Opened available sections file...')
 
-		time.sleep(delay)
 		if VERBOSE or MORE_VERBOSE:
 			printf('[' + str(datetime.datetime.now()) + '] Sleeping for ' + str(delay) +'s')
+		time.sleep(delay)
