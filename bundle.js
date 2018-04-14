@@ -10626,7 +10626,7 @@ $(document).ready(function() {
 	 * Extracts information from listening table and creates a .txt file with it
 	 */
 	$('.save_file_div').on('click', ':button', function () {
-		let text = '';
+		let text = '\n';
 		let row = 0;
 		$('.listening_table>tbody>tr').each(function() {
 			if (row != 0) {
