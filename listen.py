@@ -42,7 +42,7 @@ def processDelayAndIO(param_offset):
 
 # Usage information
 if  len(sys.argv) >= 2:
-	if (sys.argv[1] == '--help' or sys.argv[1] == '-h'):
+	if (sys.argv[1] == '-help' or sys.argv[1] == '-h' or sys.argv[1] == '--help' or sys.argv[1] == '--h'):
 		print('usage: listen.py [-bBdvV] [delay] [infile] [outfile]\n\t'
 			+ '-b: Set beep duration to 5s (default 1s)\n\t'
 			+ '-B: Set beep duration to 10s (default 1s)\n\t'
@@ -118,7 +118,12 @@ sections = []
 with open(input_file_name) as inputFile:
 	for line in inputFile:
 		parts = line.split('|')
-		if len(parts) != 6 or len(parts[0]) != 5:
+		if DEBUG:
+			printf('Found parts: [' + line[0:len(line)-1] + '] which has length ' + str(len(parts)))
+		# Ignore line if not enough parts, line starts with #, CRN has 1-4 digits (inclusive), or CRN has more than 5 digits
+		if len(parts) != 6 or (len(parts[0]) > 0 and parts[0][0] == '#') or (len(parts[0]) < 5 and len(parts[0]) > 0) or len(parts[0]) > 5:
+			if DEBUG:
+				printf('Continuing course parsing when parts: [' + line[0:len(line)-1] + ']')
 			continue
 		parts[5] = parts[5].strip('\n')
 		if DEBUG:
@@ -148,28 +153,40 @@ if (len(sections) > 0):
 		for section in sections:
 			available_sections = []
 
-			# Lookup section by crn if available
-			if getattr(section, 'crn_code'):
-				if MORE_VERBOSE:
+			# Lookup section by crn if available and valid
+			if len(getattr(section, 'crn_code')) == 5:
+				available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'));
+				if DEBUG:
+					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via CRN (' + getattr(section, 'crn_code') + ') produced ' + str(available_sections))
+				elif MORE_VERBOSE:
 					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via CRN (' + getattr(section, 'crn_code') + ')')
-				available_sections = timetable.refined_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'))
-			# Lookup section by subject code and clas number
+			# Lookup section by subject code and class number if crn lookup returned nothing
 			elif getattr(section, 'subject_code') and getattr(section, 'class_number'):
-				if MORE_VERBOSE:
-					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
-						+ '-' + getattr(section, 'class_number') + ')')
 				available_sections = timetable.class_lookup(getattr(section, 'subject_code'), getattr(section, 'class_number'),
 					getattr(section, 'term_year'), getattr(section, 'open_only'))
-
+				if DEBUG:
+					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
+						+ '-' + getattr(section, 'class_number') + ') produced ' + str(available_sections))
+				elif MORE_VERBOSE:
+					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
+						+ '-' + getattr(section, 'class_number') + ')')
+			'''if DEBUG and available_sections != None:
+				for section in available_sections:
+					printf("Available section: " + str(section))'''
 			if available_sections != None:
 				if VERBOSE or MORE_VERBOSE:
 					printf('[' + str(datetime.datetime.now()) + '] Available section(s) found')
 				open_section = True
 				# Write all available sections to output file
-				for available_section in available_sections:
-					output_file.write('AVAILABLE: ' + available_section.__str__() + '\n')
+				if isinstance(available_sections, list):
+					for available_section in available_sections:
+						output_file.write('AVAILABLE: ' + available_section.__str__() + '\n')
+						if VERBOSE or MORE_VERBOSE:
+							printf('[' + str(datetime.datetime.now()) + '] Found section (' + str(available_section) + ')')
+				else:
+					output_file.write('AVAILABLE: ' + available_sections.__str__() + '\n')
 					if VERBOSE or MORE_VERBOSE:
-						printf('[' + str(datetime.datetime.now()) + '] Found section (' + str(available_section) + ')')
+						printf('[' + str(datetime.datetime.now()) + '] Found section (' + str(available_sections) + ')')
 
 		# Notify user of available section via beep, console, and output file opening
 		if open_section:
