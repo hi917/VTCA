@@ -19,6 +19,27 @@ frequency = 1500
 VERBOSE = False
 MORE_VERBOSE = False
 DEBUG = False
+SINGLE = False
+
+#Section class
+class Section:
+	crn_code = ''
+	subject_code = ''
+	class_number = ''
+	cle_code = ''
+	term_year = ''
+	open_only = ''
+
+	def __init__(self, crn_code, subject_code, class_number, cle_code, term_year, open_only):
+		self.crn_code = crn_code
+		self.subject_code = subject_code
+		self.class_number = class_number
+		self.cle_code = cle_code
+		self.term_year = term_year
+		self.open_only = open_only
+
+	def __str__(self):
+		return getattr(self, 'crn_code') + ' ' + getattr(self, 'subject_code') + '-' + getattr(self, 'class_number')
 
 # Print to stdout and flush stdout
 def printf(string):
@@ -41,21 +62,21 @@ def processDelayAndIO(param_offset):
 		output_file_name = sys.argv[param_offset + 2]
 
 # Usage information
-if  len(sys.argv) >= 2:
-	if (sys.argv[1] == '-help' or sys.argv[1] == '-h' or sys.argv[1] == '--help' or sys.argv[1] == '--h'):
-		print('usage: listen.py [-bBdvV] [delay] [infile] [outfile]\n\t'
-			+ '-b: Set beep duration to 5s (default 1s)\n\t'
-			+ '-B: Set beep duration to 10s (default 1s)\n\t'
-			+ '-d: Run program in debug mode\n\t'
-			+ '-v: Run program in verbose mode\n\t'
-			+ '-V: Run program in more verbose mode\n\t'
-			+ 'delay: Specify delay for checking course availabilities (in seconds)\n\t'
-			+ 'infile: The directory of the .txt file with courses to check availabilities\n\t'
-			+ 'outfile: The directory of the .txt file with availability information')
-		sys.exit()
+if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
+	print('usage: listen.py [-bBdsvV] [delay] [infile] [outfile]\n\t'
+		+ '-b: Set beep duration to 5s (default 1s)\n\t'
+		+ '-B: Set beep duration to 10s (default 1s)\n\t'
+		+ '-d: Run program in debug mode\n\t'
+		+ '-s: Run program once\n\t'
+		+ '-v: Run program in verbose mode\n\t'
+		+ '-V: Run program in more verbose mode\n\t'
+		+ 'delay: Specify delay for checking course availabilities (in seconds)\n\t'
+		+ 'infile: The directory of the .txt file with courses to check availabilities\n\t'
+		+ 'outfile: The directory of the .txt file with availability information')
+	sys.exit()
 
 # Process flags, delay, and IO
-if sys.argv[1][0] == '-':
+if len(sys.argv) >= 2 and sys.argv[1][0] == '-':
 	flags = list(sys.argv[1][1:])
 	for flag in flags:
 		if flag == 'b': # Make beep duration long (5s)
@@ -70,6 +91,8 @@ if sys.argv[1][0] == '-':
 			VERBOSE = True
 			MORE_VERBOSE = True
 			DEBUG = True
+		if flag == 's': # Run program for only a single course check
+			SINGLE = True
 	processDelayAndIO(2)
 else:
 	processDelayAndIO(1)
@@ -91,26 +114,6 @@ elif VERBOSE:
 if not DEBUG:
 	printf('Beep alert duration ' + str(duration/1000)+ 's')
 
-#Section class
-class Section:
-	crn_code = ''
-	subject_code = ''
-	class_number = ''
-	cle_code = ''
-	term_year = ''
-	open_only = ''
-
-	def __init__(self, crn_code, subject_code, class_number, cle_code, term_year, open_only):
-		self.crn_code = crn_code
-		self.subject_code = subject_code
-		self.class_number = class_number
-		self.cle_code = cle_code
-		self.term_year = term_year
-		self.open_only = open_only
-
-	def __str__(self):
-		return getattr(self, 'crn_code') + ' ' + getattr(self, 'subject_code') + '-' + getattr(self, 'class_number')
-
 #List of actively listening courses
 sections = []
 
@@ -120,17 +123,26 @@ with open(input_file_name) as inputFile:
 		parts = line.split('|')
 		if DEBUG:
 			printf('Found parts: [' + line[0:len(line)-1] + '] which has length ' + str(len(parts)))
-		# Ignore line if not enough parts, line starts with #, CRN has 1-4 digits (inclusive), or CRN has more than 5 digits
-		if len(parts) != 6 or (len(parts[0]) > 0 and parts[0][0] == '#') or (len(parts[0]) < 5 and len(parts[0]) > 0) or len(parts[0]) > 5:
-			if DEBUG:
-				printf('Continuing course parsing when parts: [' + line[0:len(line)-1] + ']')
+		bad_term = False
+		curr_year = datetime.datetime.now().year
+		# Determine if valid term year and term months
+		if len(parts) > 3 and (len(parts[4]) != 6 or (parts[4][4:] != '01' and parts[4][4:] != '06' and parts[4][4:] != '07' and parts[4][4:] != '09') or int(curr_year) > int(parts[4][:4])):
+			bad_term = True
+		# Ignore line if not enough parts, line starts with #, CRN has 1-4 digits (inclusive), CRN has more than 5 digits, or open_only != true and != false
+		if len(parts) != 6 or (len(parts[0]) > 0 and parts[0][0] == '#') or (len(parts[0]) < 5 and len(parts[0]) > 0) or len(parts[0]) > 5 or (parts[5].strip('\n') != 'true' and parts[5].strip('\n') != 'false') or bad_term:
+			if DEBUG and len(parts) == 6:
+				printf('\nParts length: ' + str(len(parts)))
+				printf('CRN has more than zero digits and starts with #: ' + str((len(parts[0]) > 0 and parts[0][0] == '#')))
+				printf('CRN has 1-4 digits (incl): ' + str((len(parts[0]) < 5 and len(parts[0]) > 0)))
+				printf('CRN has more than 5 digits: ' + str(len(parts[0]) > 5))
+				printf('open_only is not \'true\' or \'false\': ' + str(parts[5].strip('\n') != 'true' and parts[5].strip('\n') != 'false'))
+				printf('bad_term: ' + str(bad_term))
+				printf('Continuing course parsing when parts: [' + line[0:len(line)-1] + ']\n')
 			continue
 		parts[5] = parts[5].strip('\n')
 		if DEBUG:
-			printf('Course detected: ' + parts[0] + ' ' + parts[1] + ' ' + parts[2] + ' ' + parts[3] + ' ' + parts[4] + ' ' + parts[5])
+			printf('Course detected: ' + parts[0] + ' ' + parts[1] + ' ' + parts[2] + ' ' + parts[3] + ' ' + parts[4] + ' ' + parts[5].title())
 		section = Section(str(parts[0]), parts[1], parts[2], parts[3], parts[4], parts[5]);
-		if len(getattr(section, 'crn_code')) < 5:
-			setattr(section, 'crn_code', '')
 		sections.append(section)
 		if VERBOSE or MORE_VERBOSE:
 			printf('[' + str(datetime.datetime.now()) + '] Listening for ' + str(section))
@@ -156,23 +168,24 @@ if (len(sections) > 0):
 			# Lookup section by crn if available and valid
 			if len(getattr(section, 'crn_code')) == 5:
 				available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'));
+
 				if DEBUG:
 					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via CRN (' + getattr(section, 'crn_code') + ') produced ' + str(available_sections))
 				elif MORE_VERBOSE:
 					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via CRN (' + getattr(section, 'crn_code') + ')')
-			# Lookup section by subject code and class number if crn lookup returned nothing
+			# Lookup section by subject code
 			elif getattr(section, 'subject_code') and getattr(section, 'class_number'):
 				available_sections = timetable.class_lookup(getattr(section, 'subject_code'), getattr(section, 'class_number'),
 					getattr(section, 'term_year'), getattr(section, 'open_only'))
+
 				if DEBUG:
 					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
 						+ '-' + getattr(section, 'class_number') + ') produced ' + str(available_sections))
 				elif MORE_VERBOSE:
 					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
 						+ '-' + getattr(section, 'class_number') + ')')
-			'''if DEBUG and available_sections != None:
-				for section in available_sections:
-					printf("Available section: " + str(section))'''
+
+			# Section(s) found from lookup
 			if available_sections != None:
 				if VERBOSE or MORE_VERBOSE:
 					printf('[' + str(datetime.datetime.now()) + '] Available section(s) found')
@@ -181,10 +194,12 @@ if (len(sections) > 0):
 				if isinstance(available_sections, list):
 					for available_section in available_sections:
 						output_file.write('AVAILABLE: ' + available_section.__str__() + '\n')
+
 						if VERBOSE or MORE_VERBOSE:
 							printf('[' + str(datetime.datetime.now()) + '] Found section (' + str(available_section) + ')')
 				else:
 					output_file.write('AVAILABLE: ' + available_sections.__str__() + '\n')
+
 					if VERBOSE or MORE_VERBOSE:
 						printf('[' + str(datetime.datetime.now()) + '] Found section (' + str(available_sections) + ')')
 
@@ -192,8 +207,13 @@ if (len(sections) > 0):
 		if open_section:
 			webbrowser.open(output_file_name)
 			winsound.Beep(frequency, duration)
+
 			if VERBOSE or MORE_VERBOSE:
 				printf('[' + str(datetime.datetime.now()) + '] Opened available sections file...')
+
+		if SINGLE:
+			printf('[' + str(datetime.datetime.now()) + '] Single coruse check complete, exiting.')
+			exit()
 
 		if VERBOSE or MORE_VERBOSE:
 			printf('[' + str(datetime.datetime.now()) + '] Sleeping for ' + str(delay) +'s')
