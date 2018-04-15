@@ -72,7 +72,24 @@ if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
 		+ '-V: Run program in more verbose mode\n\t'
 		+ 'delay: Specify delay for checking course availabilities (in seconds)\n\t'
 		+ 'infile: The directory of the .txt file with courses to check availabilities\n\t'
-		+ 'outfile: The directory of the .txt file with availability information')
+		+ 'outfile: The directory of the .txt file with availability information\n\n\t'
+
+		+ 'Program Mode Information Table:\n\t'
+		+ '                 | V | MV | D |\n\t'
+		+ 'Globals          |   |    | X |\n\t'
+		+ 'Parts Information|   |    | X |\n\t'
+		+ 'Parts Continued  |   |    | X |\n\t'
+		+ 'Course Detection |   |    | X |\n\t'
+		+ 'New Course Listen| X | X  | X |\n\t'
+		+ 'All Course Listen|   |    | X |\n\t'
+		+ 'CRN Srch Msg     |   | X  | X |\n\t'
+		+ 'CRN Rslt Msg     |   |    | X |\n\t'
+		+ 'Course Srch Msg  |   | X  | X |\n\t'
+		+ 'Course Srch Rslt |   |    | X |\n\t'
+		+ 'Open Course Found| X | X  | X |\n\t'
+		+ 'Open Outfile     | X | X  | X |\n\t'
+		+ 'Sleep Msg        | X | X  | X |\n\t'
+	)
 	sys.exit()
 
 # Process flags, delay, and IO
