@@ -67,7 +67,7 @@ def currTime():
 
 # Usage information
 if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
-	print('usage: listen.py [-bBdsmvV] [delay] [infile] [outfile]\n\t'
+	print('usage: listen.py [-bBdmsvV] [delay] [infile] [outfile]\n\t'
 		+ '-b: Set beep duration to 5s (default 1s)\n\t'
 		+ '-B: Set beep duration to 10s (default 1s)\n\t'
 		+ '-d: Run program in debug mode\n\t'
