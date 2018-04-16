@@ -224,6 +224,7 @@ if (len(sections) > 0):
 				if isinstance(available_sections, list):
 					for available_section in available_sections:
 						output_file.write('AVAILABLE: ' + available_section.__str__() + '\n')
+						output_file.flush()
 
 						if VERBOSE or MORE_VERBOSE:
 							printf(currTime() + ' Found section (' + str(available_section) + ')')
@@ -235,6 +236,7 @@ if (len(sections) > 0):
 
 				else:
 					output_file.write('AVAILABLE: ' + available_sections.__str__() + '\n')
+					output_file.flush()
 
 					if VERBOSE or MORE_VERBOSE:
 						printf(currTime() + ' Found section (' + str(available_sections) + ')')
