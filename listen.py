@@ -1,4 +1,5 @@
 from pyvt import Timetable
+from Section import Section
 import datetime
 import os
 import sys
@@ -22,25 +23,9 @@ DEBUG = False
 SINGLE = False
 MULTIPLE = False
 
-#Section class
-class Section:
-	crn_code = ''
-	subject_code = ''
-	class_number = ''
-	cle_code = ''
-	term_year = ''
-	open_only = ''
-
-	def __init__(self, crn_code, subject_code, class_number, cle_code, term_year, open_only):
-		self.crn_code = crn_code
-		self.subject_code = subject_code
-		self.class_number = class_number
-		self.cle_code = cle_code
-		self.term_year = term_year
-		self.open_only = open_only
-
-	def __str__(self):
-		return getattr(self, 'crn_code') + ' ' + getattr(self, 'subject_code') + '-' + getattr(self, 'class_number')
+# Get current date and time
+def currTime():
+	return '[' + str(datetime.datetime.now()) + ']'
 
 # Print to stdout and flush stdout
 def printf(string):
@@ -62,10 +47,7 @@ def processDelayAndIO(param_offset):
 		global output_file_name
 		output_file_name = sys.argv[param_offset + 2]
 
-def currTime():
-	return '[' + str(datetime.datetime.now()) + ']'
-
-# Usage information
+# Display usage when -h and --help flagged
 if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
 	print('usage: listen.py [-bBdmsvV] [delay] [infile] [outfile]\n\t'
 		+ '-b: Set beep duration to 5s (default 1s)\n\t'
@@ -240,11 +222,11 @@ if (len(sections) > 0):
 
 					if VERBOSE or MORE_VERBOSE:
 						printf(currTime() + ' Found section (' + str(available_sections) + ')')
-							if MULTIPLE:
-								printf(currTime() + ' Found section (' + str(available_sections) + ')')
-								printf(currTime() + ' Found section (' + str(available_sections) + ')')
-								printf(currTime() + ' Found section (' + str(available_sections) + ')')
-								printf(currTime() + ' Found section (' + str(available_sections) + ')')
+						if MULTIPLE:
+							printf(currTime() + ' Found section (' + str(available_sections) + ')')
+							printf(currTime() + ' Found section (' + str(available_sections) + ')')
+							printf(currTime() + ' Found section (' + str(available_sections) + ')')
+							printf(currTime() + ' Found section (' + str(available_sections) + ')')
 
 		# Notify user of available section via beep, console, and output file opening
 		if open_section:
@@ -256,7 +238,7 @@ if (len(sections) > 0):
 
 		if SINGLE:
 			printf(currTime() + ' Single coruse check complete, exiting.')
-			exit()
+			sys.exit()
 
 		if VERBOSE or MORE_VERBOSE:
 			printf(currTime() + ' Sleeping for ' + str(delay) +'s')
