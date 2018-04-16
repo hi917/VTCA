@@ -97,7 +97,7 @@ if len(sys.argv) >= 2 and sys.argv[1][0] == '-':
 			DEBUG = True
 		if flag == 's': # Run program for only a single course check
 			SINGLE = True
-		if flag == 'm':
+		if flag == 'm': # Print to stdout available course found multiple times (x5). Must be in verbose or more verbose mode to see.
 			MULTIPLE = True
 	processDelayAndIO(2)
 else:
