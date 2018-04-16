@@ -61,6 +61,9 @@ def processDelayAndIO(param_offset):
 		global output_file_name
 		output_file_name = sys.argv[param_offset + 2]
 
+def currTime():
+	return '[' + str(datetime.datetime.now()) + ']'
+
 # Usage information
 if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
 	print('usage: listen.py [-bBdsvV] [delay] [infile] [outfile]\n\t'
@@ -162,7 +165,7 @@ with open(input_file_name) as inputFile:
 		section = Section(str(parts[0]), parts[1], parts[2], parts[3], parts[4], parts[5]);
 		sections.append(section)
 		if VERBOSE or MORE_VERBOSE:
-			printf('[' + str(datetime.datetime.now()) + '] Listening for ' + str(section))
+			printf(currTime() + ' Listening for ' + str(section))
 
 if DEBUG:
 	printf('\nSections Listening To:')
@@ -173,7 +176,7 @@ if DEBUG:
 timetable = Timetable()
 # Allow loop if listening to classes
 if (len(sections) > 0):
-	printf('[' + str(datetime.datetime.now()) + '] Initiated alerter')
+	printf(currTime() + ' Initiated alerter')
 
 	while (True):
 		open_section = False
@@ -184,28 +187,34 @@ if (len(sections) > 0):
 
 			# Lookup section by crn if available and valid
 			if len(getattr(section, 'crn_code')) == 5:
-				available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'));
+				try:
+					available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'));
+				except urllib2.URLError as e:
+					if DEBUG:
+						printf(currTime() + ' Website (' + e.url + ') could not be reached due to %s' + e.reason)
+					if VERBOSE or MORE_VERBOSE:
+						printf(currTime() + ' Error occurred during timetable lookup for ' + str(section))
 
 				if DEBUG:
-					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via CRN (' + getattr(section, 'crn_code') + ') produced ' + str(available_sections))
+					printf(currTime() + ' Timetable lookup via CRN (' + getattr(section, 'crn_code') + ') produced ' + str(available_sections))
 				elif MORE_VERBOSE:
-					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via CRN (' + getattr(section, 'crn_code') + ')')
+					printf(currTime() + ' Timetable lookup via CRN (' + getattr(section, 'crn_code') + ')')
 			# Lookup section by subject code
 			elif getattr(section, 'subject_code') and getattr(section, 'class_number'):
 				available_sections = timetable.class_lookup(getattr(section, 'subject_code'), getattr(section, 'class_number'),
 					getattr(section, 'term_year'), getattr(section, 'open_only'))
 
 				if DEBUG:
-					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
+					printf(currTime() + ' Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
 						+ '-' + getattr(section, 'class_number') + ') produced ' + str(available_sections))
 				elif MORE_VERBOSE:
-					printf('[' + str(datetime.datetime.now()) + '] Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
+					printf(currTime() + ' Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
 						+ '-' + getattr(section, 'class_number') + ')')
 
 			# Section(s) found from lookup
 			if available_sections != None:
 				if VERBOSE or MORE_VERBOSE:
-					printf('[' + str(datetime.datetime.now()) + '] Available section(s) found')
+					printf(currTime() + ' Available section(s) found')
 				open_section = True
 				# Write all available sections to output file
 				if isinstance(available_sections, list):
@@ -213,12 +222,12 @@ if (len(sections) > 0):
 						output_file.write('AVAILABLE: ' + available_section.__str__() + '\n')
 
 						if VERBOSE or MORE_VERBOSE:
-							printf('[' + str(datetime.datetime.now()) + '] Found section (' + str(available_section) + ')')
+							printf(currTime() + ' Found section (' + str(available_section) + ')')
 				else:
 					output_file.write('AVAILABLE: ' + available_sections.__str__() + '\n')
 
 					if VERBOSE or MORE_VERBOSE:
-						printf('[' + str(datetime.datetime.now()) + '] Found section (' + str(available_sections) + ')')
+						printf(currTime() + ' Found section (' + str(available_sections) + ')')
 
 		# Notify user of available section via beep, console, and output file opening
 		if open_section:
@@ -226,12 +235,12 @@ if (len(sections) > 0):
 			winsound.Beep(frequency, duration)
 
 			if VERBOSE or MORE_VERBOSE:
-				printf('[' + str(datetime.datetime.now()) + '] Opened available sections file...')
+				printf(currTime() + ' Opened available sections file...')
 
 		if SINGLE:
-			printf('[' + str(datetime.datetime.now()) + '] Single coruse check complete, exiting.')
+			printf(currTime() + ' Single coruse check complete, exiting.')
 			exit()
 
 		if VERBOSE or MORE_VERBOSE:
-			printf('[' + str(datetime.datetime.now()) + '] Sleeping for ' + str(delay) +'s')
+			printf(currTime() + ' Sleeping for ' + str(delay) +'s')
 		time.sleep(delay)
