@@ -173,13 +173,7 @@ if (len(sections) > 0):
 
 			# Lookup section by crn if available and valid
 			if len(getattr(section, 'crn_code')) == 5:
-				try:
-					available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'));
-				except urllib2.URLError as e:
-					if DEBUG:
-						printf(currTime() + ' Website (' + e.url + ') could not be reached due to %s' + e.reason)
-					if VERBOSE or MORE_VERBOSE:
-						printf(currTime() + ' Error occurred during timetable lookup for ' + str(section))
+				available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'));
 
 				if DEBUG:
 					printf(currTime() + ' Timetable lookup via CRN (' + getattr(section, 'crn_code') + ') produced ' + str(available_sections))
