@@ -79,45 +79,37 @@ def processDelayAndIO(param_offset):
 		except:
 			printf('Invalid input error for delay, input must be a positive integer.')
 			exit()	
-	'''
-		infile:
-			os.path.exists: False
-				-> Infile: Invalid directory to input file (must be a .txt file)
-			os.path.exists: True
-				-> Continue
-		outfile:
-			os.path.exists: False
-				os.path.isdir: False
-					-> Outfile: Invalid output file directory specified
-				os.path.isdir: True
-					-> Create default file, continue
-			os.path.exists: True
-				-> Continue
-	'''
+
 	# File containing sections to listen to
 	if len(sys.argv) >= param_offset + 2:
 		global input_file_name
 		input_file_name = sys.argv[param_offset + 1]
-		'''
-		# Check if file exists and is .txt file
-		if not os.path.exists(input_file_name) or not containsTxt(input_file_name):
-			printf('Infile: Directory was specified with no valid input file (must be .txt file)')
-			exit()'''
+		if DEBUG:
+			printf('input_file_name: ' + input_file_name)
+			printf('os.path.exists(input_file_name): ' + str(os.path.exists(input_file_name)))
+			printf('not containsTxt(input_file_name): ' + str(not containsTxt(input_file_name)) + '\n')
+		# If file exists and is not a .txt
+		if os.path.exists(input_file_name) and not containsTxt(input_file_name):
+			printf('Infile: Input file must be a .txt file')
+			exit()
+		# If file does not exist
+		elif not os.path.exists(input_file_name):
+			printf('Infile: Invalid path to input file')
+			exit()
+		
 	# File containing available sections
 	if len(sys.argv) >= param_offset + 3:
 		global output_file_name
 		output_file_name = sys.argv[param_offset + 2]
-		'''
-		out_length = len(output_file_name)
+		# If file exists and is not a .txt
+		if os.path.exists(output_file_name) and not containsTxt(output_file_name):
+			printf('Outfile: Output file must be a .txt file')
+			exit()
+		# If file does not exist
+		elif not os.path.exists(input_file_name):
+			printf('Outfile: Invalid path to output file')
+			exit()
 
-		if os.path.isdir(output_file_name):
-			printf('Outfile: Directory was specified with no valid output file (must be .txt file)')
-			exit()
-		# Check if output file name has '.txt' or '/.txt'
-		elif not containsTxt(output_file_name) or (out_length >= 5 and str(output_file_name[out_length-5:]) == '/.txt'):
-			printf('Outfile: Invalid output file')
-			exit()
-		'''
 			
 # Display usage when -h and --help flagged
 if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
@@ -208,10 +200,10 @@ timetable = Timetable()
 # Allow loop if listening to classes
 if (len(sections) > 0):
 	printf(currTime() + ' Initiated alerter')
+	output_file = open(output_file_name, 'w')
 
 	while (True):
 		open_section = False
-		output_file = open(output_file_name, 'w')
 
 		for section in sections:
 			available_sections = []
