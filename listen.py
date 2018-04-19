@@ -23,6 +23,13 @@ DEBUG = False
 SINGLE = False
 MULTIPLE = False
 
+# Determines if string contains '.txt'
+def containsTxt(string):
+	string = str(string)
+	if len(string) <= 4:
+		return False
+	return string[len(string)-4:] == '.txt'
+
 # Get current date and time
 def currTime():
 	return '[' + str(datetime.datetime.now()) + ']'
@@ -32,23 +39,7 @@ def printf(string):
 	print(str(string))
 	sys.stdout.flush()
 
-# Process arguments for delay, input, and output
-# param_offset == 1 if no flags, == 2 if there are flags
-def processDelayAndIO(param_offset):
-	if len(sys.argv) >= param_offset + 1:
-		global delay
-		delay = int(sys.argv[param_offset])
-	# File containing sections to listen to
-	if len(sys.argv) >= param_offset + 2:
-		global input_file_name
-		input_file_name = sys.argv[param_offset + 1]
-	# File containing available sections
-	if len(sys.argv) >= param_offset + 3:
-		global output_file_name
-		output_file_name = sys.argv[param_offset + 2]
-
-# Display usage when -h and --help flagged
-if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
+def printUsage():
 	print('usage: listen.py [-bBdmsvV] [delay] [infile] [outfile]\n\t'
 		+ '-b: Set beep duration to 5s (default 1s)\n\t'
 		+ '-B: Set beep duration to 10s (default 1s)\n\t'
@@ -77,6 +68,78 @@ if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
 		+ 'Open Outfile     |   | X | X  | X |\n\t'
 		+ 'Sleep Msg        |   | X | X  | X |\n\t'
 	)
+
+# Process arguments for delay, input, and output
+# param_offset == 1 if no flags, == 2 if there are flags
+def processDelayAndIO(param_offset):
+	if len(sys.argv) >= param_offset + 1:
+		global delay
+		try:
+			delay = int(sys.argv[param_offset])
+		except:
+			printf('Invalid input error for delay, input must be a positive integer.')
+			exit()
+
+	'''
+		File Possibilities:
+		Directory
+			Exist
+				-> No specified file
+					[in]->  Infile: Directory was specified with no valid input file (must be .txt file)
+					[out]-> Outfile: Directory was specified with no valid output file (must be .txt file)
+			Nonexistent
+				-> No specified file
+					[in]->  Infile: Invalid directory
+					[out]-> Outfile: Invalid directory
+		File
+			Not .txt
+				[in]->  Infile: Directory was specified with no valid input file (must be .txt file)
+				[out]-> Outfile: Directory was specified with no valid output file (must be .txt file)
+			.txt
+				Exist
+					[in]->  Continue
+					[out]-> Continue
+				Nonexistent
+					[in]->  
+						Directory Exists
+							-> Infile: Directory was specified with no valid input file (must be .txt file)
+						Directory Nonexistent
+							-> Infile: Invalid input file directory specified
+					[out]->
+						Directory Exists
+							-> Create file, continue
+						Directory Nonexistent
+							-> Outfile: Can't create output file at nonexistent directory
+	'''
+	
+	# File containing sections to listen to
+	if len(sys.argv) >= param_offset + 2:
+		global input_file_name
+		input_file_name = sys.argv[param_offset + 1]
+		'''
+		# Check if file exists and is .txt file
+		if not os.path.exists(input_file_name) or not containsTxt(input_file_name):
+			printf('Infile: Directory was specified with no valid input file (must be .txt file)')
+			exit()'''
+	# File containing available sections
+	if len(sys.argv) >= param_offset + 3:
+		global output_file_name
+		output_file_name = sys.argv[param_offset + 2]
+		'''
+		out_length = len(output_file_name)
+
+		if os.path.isdir(output_file_name):
+			printf('Outfile: Directory was specified with no valid output file (must be .txt file)')
+			exit()
+		# Check if output file name has '.txt' or '/.txt'
+		elif not containsTxt(output_file_name) or (out_length >= 5 and str(output_file_name[out_length-5:]) == '/.txt'):
+			printf('Outfile: Invalid output file')
+			exit()
+		'''
+			
+# Display usage when -h and --help flagged
+if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
+	printUsage()
 	sys.exit()
 
 # Process flags, delay, and IO
@@ -148,7 +211,7 @@ with open(input_file_name) as inputFile:
 		parts[5] = parts[5].strip('\n')
 		if DEBUG:
 			printf('Course detected: ' + parts[0] + ' ' + parts[1] + ' ' + parts[2] + ' ' + parts[3] + ' ' + parts[4] + ' ' + parts[5].title())
-		section = Section(str(parts[0]), parts[1], parts[2], parts[3], parts[4], parts[5]);
+		section = Section(str(parts[0]), parts[1], parts[2], parts[3], parts[4], parts[5])
 		sections.append(section)
 		if VERBOSE or MORE_VERBOSE:
 			printf(currTime() + ' Listening for ' + str(section))
@@ -174,9 +237,12 @@ if (len(sections) > 0):
 			# Lookup section by crn if available and valid
 			if len(getattr(section, 'crn_code')) == 5:
 				try:
-					available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'));
+					available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'))
 				except Exception as e:
-					printf(gettime() + ' An exception has occured: ' + str(e));
+					if VERBOSE or MORE_VERBOSE:
+						printf(currTime() + ' An exception has occured: ' + str(e))
+					else:
+						pass
 
 				if DEBUG:
 					printf(currTime() + ' Timetable lookup via CRN (' + getattr(section, 'crn_code') + ') produced ' + str(available_sections))
@@ -192,7 +258,7 @@ if (len(sections) > 0):
 						getattr(section, 'term_year'), getattr(section, 'open_only'))
 				except Exception as e:
 					if VERBOSE or MORE_VERBOSE:
-						printf(gettime() + ' An exception has occured: ' + str(e));
+						printf(currTime() + ' An exception has occured: ' + str(e))
 					else:
 						pass
 
