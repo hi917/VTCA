@@ -128,18 +128,23 @@ if len(sys.argv) >= 2 and sys.argv[1][0] == '-':
 			duration = 5000
 		elif flag == 'B': # Make beep duration even longer (10s)
 			duration = 10000
+		elif flag == 'd': # Debug mode, intended for developer use
+			VERBOSE = True
+			MORE_VERBOSE = True
+			DEBUG = True
+		elif flag == 'h': # Print usage and exit program
+			printf('Found help flag in list of flags. Outputting usage and ignoring remainder of program.')
+			printUsage()
+			sys.exit()
+		elif flag == 'm': # Print to stdout available course found multiple times (x5). Must be in verbose or more verbose mode to see.
+			MULTIPLE = True
+		elif flag == 's': # Run program for only a single course check
+			SINGLE = True
 		elif flag == 'v': # Print details about alerter
 			VERBOSE = True
 		elif flag == 'V': # Print even more details about alerter
 			MORE_VERBOSE = True
-		elif flag == 'd' or flag == 'D': # Debug mode, intended for developer use
-			VERBOSE = True
-			MORE_VERBOSE = True
-			DEBUG = True
-		elif flag == 's': # Run program for only a single course check
-			SINGLE = True
-		elif flag == 'm': # Print to stdout available course found multiple times (x5). Must be in verbose or more verbose mode to see.
-			MULTIPLE = True
+		
 		else:
 			printf('Unrecognized flag \'' + flag + '\', exiting program')
 			sys.exit()
