@@ -40,7 +40,7 @@ def printf(string):
 	sys.stdout.flush()
 
 def printUsage():
-	print('usage: listen.py [-bBdmsvV] [delay] [infile] [outfile]\n\t'
+	print('usage: listen.py [-bBdmsvV] [delay] [infile [outfile]]\n\t'
 		+ '-b: Set beep duration to 5s (default 1s)\n\t'
 		+ '-B: Set beep duration to 10s (default 1s)\n\t'
 		+ '-d: Run program in debug mode\n\t'
@@ -78,7 +78,7 @@ def processDelayAndIO(param_offset):
 			delay = int(sys.argv[param_offset])
 		except:
 			printf('Invalid input error for delay, input must be a positive integer.')
-			exit()	
+			sys.exit()	
 
 	# File containing sections to listen to
 	if len(sys.argv) >= param_offset + 2:
@@ -91,24 +91,28 @@ def processDelayAndIO(param_offset):
 		# If file exists and is not a .txt
 		if os.path.exists(input_file_name) and not containsTxt(input_file_name):
 			printf('Infile: Input file must be a .txt file')
-			exit()
+			sys.exit()
 		# If file does not exist
 		elif not os.path.exists(input_file_name):
 			printf('Infile: Invalid path to input file')
-			exit()
+			sys.exit()
 		
 	# File containing available sections
 	if len(sys.argv) >= param_offset + 3:
 		global output_file_name
 		output_file_name = sys.argv[param_offset + 2]
+		if DEBUG:
+			printf('output_file_name: ' + output_file_name)
+			printf('os.path.exists(output_file_name): ' + str(os.path.exists(output_file_name)))
+			printf('not containsTxt(output_file_name): ' + str(not containsTxt(output_file_name)) + '\n')
 		# If file exists and is not a .txt
 		if os.path.exists(output_file_name) and not containsTxt(output_file_name):
 			printf('Outfile: Output file must be a .txt file')
-			exit()
+			sys.exit()
 		# If file does not exist
 		elif not os.path.exists(input_file_name):
 			printf('Outfile: Invalid path to output file')
-			exit()
+			sys.exit()
 
 			
 # Display usage when -h and --help flagged
@@ -122,20 +126,23 @@ if len(sys.argv) >= 2 and sys.argv[1][0] == '-':
 	for flag in flags:
 		if flag == 'b': # Make beep duration long (5s)
 			duration = 5000
-		if flag == 'B': # Make beep duration even longer (10s)
+		elif flag == 'B': # Make beep duration even longer (10s)
 			duration = 10000
-		if flag == 'v': # Print details about alerter
+		elif flag == 'v': # Print details about alerter
 			VERBOSE = True
-		if flag == 'V': # Print even more details about alerter
+		elif flag == 'V': # Print even more details about alerter
 			MORE_VERBOSE = True
-		if flag == 'd' or flag == 'D': # Debug mode, intended for developer use
+		elif flag == 'd' or flag == 'D': # Debug mode, intended for developer use
 			VERBOSE = True
 			MORE_VERBOSE = True
 			DEBUG = True
-		if flag == 's': # Run program for only a single course check
+		elif flag == 's': # Run program for only a single course check
 			SINGLE = True
-		if flag == 'm': # Print to stdout available course found multiple times (x5). Must be in verbose or more verbose mode to see.
+		elif flag == 'm': # Print to stdout available course found multiple times (x5). Must be in verbose or more verbose mode to see.
 			MULTIPLE = True
+		else:
+			printf('Unrecognized flag \'' + flag + '\', exiting program')
+			sys.exit()
 	processDelayAndIO(2)
 else:
 	processDelayAndIO(1)
