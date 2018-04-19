@@ -218,7 +218,7 @@ if (len(sections) > 0):
 		open_section = False
 
 		for section in sections:
-			available_sections = []
+			available_sections = None
 
 			# Lookup section by crn if available and valid
 			if len(getattr(section, 'crn_code')) == 5:
