@@ -53,7 +53,7 @@ if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
 		+ '-b: Set beep duration to 5s (default 1s)\n\t'
 		+ '-B: Set beep duration to 10s (default 1s)\n\t'
 		+ '-d: Run program in debug mode\n\t'
-		+ '-m: Print to stdout available course found multiple times (x5). Must be in verbose or more verbose mode to see.'
+		+ '-m: Print to stdout available course found multiple times (x5). Must be in verbose or more verbose mode to see.\n\t'
 		+ '-s: Run program once\n\t'
 		+ '-v: Run program in verbose mode\n\t'
 		+ '-V: Run program in more verbose mode\n\t'
