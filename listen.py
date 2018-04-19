@@ -78,40 +78,22 @@ def processDelayAndIO(param_offset):
 			delay = int(sys.argv[param_offset])
 		except:
 			printf('Invalid input error for delay, input must be a positive integer.')
-			exit()
-
+			exit()	
 	'''
-		File Possibilities:
-		Directory
-			Exist
-				-> No specified file
-					[in]->  Infile: Directory was specified with no valid input file (must be .txt file)
-					[out]-> Outfile: Directory was specified with no valid output file (must be .txt file)
-			Nonexistent
-				-> No specified file
-					[in]->  Infile: Invalid directory
-					[out]-> Outfile: Invalid directory
-		File
-			Not .txt
-				[in]->  Infile: Directory was specified with no valid input file (must be .txt file)
-				[out]-> Outfile: Directory was specified with no valid output file (must be .txt file)
-			.txt
-				Exist
-					[in]->  Continue
-					[out]-> Continue
-				Nonexistent
-					[in]->  
-						Directory Exists
-							-> Infile: Directory was specified with no valid input file (must be .txt file)
-						Directory Nonexistent
-							-> Infile: Invalid input file directory specified
-					[out]->
-						Directory Exists
-							-> Create file, continue
-						Directory Nonexistent
-							-> Outfile: Can't create output file at nonexistent directory
+		infile:
+			os.path.exists: False
+				-> Infile: Invalid directory to input file (must be a .txt file)
+			os.path.exists: True
+				-> Continue
+		outfile:
+			os.path.exists: False
+				os.path.isdir: False
+					-> Outfile: Invalid output file directory specified
+				os.path.isdir: True
+					-> Create default file, continue
+			os.path.exists: True
+				-> Continue
 	'''
-	
 	# File containing sections to listen to
 	if len(sys.argv) >= param_offset + 2:
 		global input_file_name
