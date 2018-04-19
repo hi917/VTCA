@@ -173,16 +173,28 @@ if (len(sections) > 0):
 
 			# Lookup section by crn if available and valid
 			if len(getattr(section, 'crn_code')) == 5:
-				available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'));
+				try:
+					available_sections = timetable.crn_lookup(getattr(section, 'crn_code'), getattr(section, 'term_year'), getattr(section, 'open_only'));
+				except Exception as e:
+					printf(gettime() + ' An exception has occured: ' + str(e));
 
 				if DEBUG:
 					printf(currTime() + ' Timetable lookup via CRN (' + getattr(section, 'crn_code') + ') produced ' + str(available_sections))
 				elif MORE_VERBOSE:
-					printf(currTime() + ' Timetable lookup via CRN (' + getattr(section, 'crn_code') + ')')
+					if VERBOSE or MORE_VERBOSE:
+						printf(currTime() + ' Timetable lookup via CRN (' + getattr(section, 'crn_code') + ')')
+					else:
+						pass
 			# Lookup section by subject code
 			elif getattr(section, 'subject_code') and getattr(section, 'class_number'):
-				available_sections = timetable.class_lookup(getattr(section, 'subject_code'), getattr(section, 'class_number'),
-					getattr(section, 'term_year'), getattr(section, 'open_only'))
+				try:
+					available_sections = timetable.class_lookup(getattr(section, 'subject_code'), getattr(section, 'class_number'),
+						getattr(section, 'term_year'), getattr(section, 'open_only'))
+				except Exception as e:
+					if VERBOSE or MORE_VERBOSE:
+						printf(gettime() + ' An exception has occured: ' + str(e));
+					else:
+						pass
 
 				if DEBUG:
 					printf(currTime() + ' Timetable lookup via subject and class number (' + getattr(section, 'subject_code') 
