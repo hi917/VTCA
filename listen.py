@@ -144,11 +144,11 @@ if len(sys.argv) >= 2 and sys.argv[1][0] == '-':
 			VERBOSE = True
 		elif flag == 'V': # Print even more details about alerter
 			MORE_VERBOSE = True
-		
 		else:
 			printf('Unrecognized flag \'' + flag + '\', exiting program')
 			sys.exit()
 	processDelayAndIO(2)
+# No flags to process, only potentially delay and IO
 else:
 	processDelayAndIO(1)
 
